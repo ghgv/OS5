@@ -67,21 +67,43 @@ char asccode[58][2] =       /* Array containing ascii codes for
 
 static void keyboard_callback(registers_t regs)
 {
-     
+   static int specialkey=0;  
    unsigned char scancode;
    scancode = inb(0x60);
-   
-   if (scancode & 0x80)
-   {
-    //printf("%c",asccode[scancode][1]);   
-    }
-   else{
-    if(asccode[scancode][0]!='\r')   
-        printf("%c",asccode[scancode][0]);
-    else
-        printf("\n");
+   //printf("[%x]",scancode);
+   if(scancode ==0xE0){
+       specialkey=1;
+       //printf("[#%x]",scancode);
+       goto salir;
+      }
+   if(specialkey==0){
+        
+        if (scancode & 0x80)
+        {
+            //printf("%c",asccode[scancode][1]);   
+            }
+        else{
+            if(asccode[scancode][0]!='\r')   
+                printf("%c",asccode[scancode][0]);
+            else
+                printf("\n");
+        }
    }
-   
+   else
+   {
+      // printf("[&%x]",scancode);
+       if(scancode == 0x48) 
+        printf("%c",128);
+       if(scancode == 0x50) 
+        printf("%c",129);
+       if(scancode == 0x4B) 
+        printf("%c",130);
+       if(scancode == 0x4D) 
+        printf("%c",131);
+        specialkey=0;
+   }
+   salir:
+   specialkey=specialkey;
 }
 
 void init_keyboard(uint32_t frequency)

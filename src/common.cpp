@@ -16,6 +16,25 @@ void outb(uint16_t _port, uint8_t _data)
                        //asm volatile ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
+void outw(uint16_t _port, uint32_t _data)
+{
+                        __asm__ volatile("out %%eax,    %%dx\n\t"
+                                :: "a" (_data), "d" (_port)
+                        );
+}
+
+uint32_t inw(uint16_t _port)
+{
+                        uint32_t result;
+                        __asm__ volatile("in    %%dx, %%eax\n\t"
+                        : "=a" (result)
+                        : "d" (_port)
+                        );
+                        return result;
+                        
+}
+
+
 void memset(uint8_t *dest, uint8_t val, uint32_t len)
 {
     uint8_t *temp = (uint8_t *)dest;
@@ -78,7 +97,7 @@ void putint(int  num, int base){
             x=0;
         }
         if(y>VGA_HEIGHT)
-            changer();
+            changer(0,24);
         x++;
         }
     }
@@ -90,7 +109,7 @@ void putint(int  num, int base){
                 x=0;
             }
             if(y>VGA_HEIGHT)
-                changer();
+                changer(0,24);
             x++;
         }
     update_cursor(x, y);
@@ -120,7 +139,7 @@ void putlong(unsigned long  num, int base){
                 x=0;
             }
             if(y>VGA_HEIGHT)
-                changer();
+                changer(0,24);
             x++;
             }
         }
@@ -132,7 +151,7 @@ void putlong(unsigned long  num, int base){
                 x=0;
             }
             if(y>VGA_HEIGHT){
-                changer();
+                changer(0,24);
             }
             x++;
         }
@@ -140,9 +159,27 @@ void putlong(unsigned long  num, int base){
 }
 
 
-void putchar(char str){
-
-  if(str==0xA){
+void putchar(unsigned char str){
+  if(str == 128){
+      y--;
+      goto salir;
+  }
+  if(str == 129){
+      y++;
+      if(y>24){
+          changer(x,24);
+        }
+      goto salir;
+  }
+  if(str == 130){
+      x--;
+      goto salir;
+  }
+  if(str == 131){
+      x++;
+      goto salir;
+  }
+  if(str=='\n'){
       y++;
       x=0;   
   }
@@ -153,18 +190,19 @@ void putchar(char str){
           y++;
           x=0;
       }
-    if(y>VGA_HEIGHT){
-        changer();
+    if(y>(VGA_HEIGHT-1)){
+        changer(0,24);
         x--;
     }
    x++; 
    }
+   salir:
    update_cursor(x, y);
 }
 
-void changer(){
-    y=24;
-    x=0;
+void changer(int X, int Y){
+    y=Y;
+    x=X;
     unsigned short buffer[VGA_WIDTH*VGA_HEIGHT];
     for(int i=0;i<(VGA_WIDTH*VGA_HEIGHT);i++)
         buffer[i]=0;
@@ -180,11 +218,20 @@ void changer(){
 void update_cursor(int x, int y)
 {
 	uint16_t pos = y * VGA_WIDTH + x;
- 
+    char X[4],Y[4];
 	outb(0x3D4, 0x0F);
 	outb(0x3D5, (uint8_t) (pos & 0xFF));
 	outb(0x3D4, 0x0E);
 	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+    
+    itoa(x+1,X,10);
+    itoa(y+1,Y,10);
+    videomemory[0]=(videomemory[0] & 0xFF00) | X[0];
+    videomemory[1]=(videomemory[1] & 0xFF00) | X[1];
+    videomemory[2]=(videomemory[2] & 0xFF00) | ':';
+    videomemory[3]=(videomemory[3] & 0xFF00) | Y[0];
+    videomemory[4]=(videomemory[4] & 0xFF00) | Y[1];
+    
 }
 
 unsigned long getticks(void)
@@ -192,4 +239,51 @@ unsigned long getticks(void)
      unsigned long  ret;
      __asm__ __volatile__("rdtsc": "=A" (ret));
      return ret;
+}
+// function to reverse buffer[i..j]
+char* reverse2(char *buffer, int i, int j)
+{
+    while (i < j)
+        swap(&buffer[i++], &buffer[j--]);
+ 
+    return buffer;
+}
+
+// Iterative function to implement itoa() function in C
+char* itoa(int value, char* buffer, int base)
+{
+    // invalid input
+    if (base < 2 || base > 32)
+        return buffer;
+ 
+    // consider absolute value of number
+    int n = value;
+ 
+    int i = 0;
+    while (n)
+    {
+        int r = n % base;
+ 
+        if (r >= 10) 
+            buffer[i++] = 65 + (r - 10);
+        else
+            buffer[i++] = 48 + r;
+ 
+        n = n / base;
+    }
+ 
+    // if number is 0
+    if (i == 0)
+        buffer[i++] = '0';
+ 
+    // If base is 10 and value is negative, the resulting string 
+    // is preceded with a minus sign (-)
+    // With any other base, value is always considered unsigned
+    if (value < 0 && base == 10)
+        buffer[i++] = '-';
+ 
+    buffer[i] = '\0'; // null terminate string
+ 
+    // reverse the string and return it
+    return reverse2(buffer, 0, i - 1);
 }

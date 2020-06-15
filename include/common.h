@@ -10,17 +10,20 @@ static unsigned short* videomemory  =(unsigned short*)0xb8000;
 static int x=0,y=0;
 
 
-void putchar(char str);
+void putchar(unsigned char str);
 void putint(int  num, int base);
 void putlong(unsigned long  num, int base);
 void swap(char *a, char *b);
 void reverse(char *str[], int length);
 uint8_t inb(uint16_t _port);
 void outb(uint16_t _port, uint8_t _data);
+uint32_t inw(uint16_t _port);
+void outw(uint16_t _port, uint32_t _data);
 void memset(uint8_t *dest, uint8_t val, uint32_t len);
-void changer();
+void changer(int X, int Y);
 void update_cursor(int x, int y);
 unsigned long getticks(void);
+char* itoa(int value, char* buffer, int base);
 
 
 #define PS2 0x60
