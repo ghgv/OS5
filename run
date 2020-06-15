@@ -1,0 +1,1 @@
+qemu-system-x86_64 -cpu 486 -boot d -cdrom mykernel.iso -m 1024 -monitor stdio -s -S
