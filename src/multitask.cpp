@@ -35,11 +35,13 @@ int scheduler(registers_t regs ){
     printf(" Sche. PID %i\n",currentPID);
  */
     if(AllTasks <= 0)
+    {
+       // printf("All Task <=0 %X %X\n",regs.esp, regs.eip);
         return regs.esp;
-    
+    }
     Tasks[currentPID].stack=(CPUState_t *)regs.esp;
     
-    printf(" SW %i\n",currentPID);
+  //  printf(" SW %i\n",currentPID);
     do{
         currentPID+=1;
         if (currentPID>AllTasks)

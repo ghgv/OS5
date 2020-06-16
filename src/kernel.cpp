@@ -97,7 +97,7 @@ void impr(){
     //asm volatile("int $0x4");
     
     
-    paging();
+    //paging();
     init_keyboard(12);
     //test_isr14();
     
@@ -108,16 +108,17 @@ void impr(){
     //initialise_syscalls();
     
      
-    //init_multitask();
+    init_multitask();
     //Task_create(1,1,(void *)impr);
     
     
     //uint32_t *x = (uint32_t *)malloc(0x100);
     printf("After init heap\n"); 
-    printf("Vendor ID: 0x%X\n",read_pci(0,0x1A,0,0,sizeof(uint16_t)));
+   /* printf("Vendor ID: 0x%X\n",read_pci(0,0x1A,0,0,sizeof(uint16_t)));
     for (int i=0; i<6; i++)
-            printf("0x%X\n",pci_read_dword(0, 0x1A, 0,(i<<2)));
+            printf("0x%X\n",pci_read_dword(0, 0x1A, 0,(i<<2)));*/
     asm volatile("sti");
+    
     lsh_loop();
     //while(1);
 }

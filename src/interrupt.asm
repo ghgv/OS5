@@ -121,9 +121,9 @@ extern irq_handler
 ; up for kernel mode segments, calls the C-level fault handler,
 ; and finally restores the stack frame.
 irq_common_stub:
-
-    pushad                    ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
-
+aqui5: ;0x3063d0   current ESP comes from here 4 places down
+    pushad                    ; Pushes    edi,esi,ebp,esp,ebx,edx,ecx,eax
+aqui4: ;0x3063b0 
     mov ax, ds               ; Lower 16-bits of eax = ds.
     push eax                 ; save the data segment descriptor
 
@@ -132,22 +132,23 @@ irq_common_stub:
     mov es, ax
     mov fs, ax
     mov gs, ax
-    
+aqui3: ;0x3063ac
     call irq_handler
-    ;add esp, 0x24
+
+    ;add esp, -0x24
     
     
     mov esp, eax
-    
+aqui2:    
     pop ebx        ; reload the original data segment descriptor
-    
+aqui11:    
     mov ds, bx
     mov es, bx
     mov fs, bx
     mov gs, bx
     
     popad                     ; Pops edi,esi,ebp...
-      
+aqui1:      
     add esp, 8     ; Cleans up the pushed error code and pushed ISR number
     ;sti
 aqui:    

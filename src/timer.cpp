@@ -16,13 +16,15 @@ static int timer_callback(registers_t regs)
    tick++;
    int return_stack;
    registers_t *ptr;
-  /* printf("\n Reg ESP:    0x%X\n",regs.esp);
-   printf(" Reg No:       %i\n",regs.int_no);
-   printf(" Reg ESP:    0x%X\n",regs.esp);*/
+   /*printf(" Current reg:    0x%X\n",&regs);
+   printf(" Current ESP:    0x%X\n",regs.esp);
+   printf(" Current EIP:    0x%X\n",regs.eip);
+   printf(" Current Int No:       %i\n",regs.int_no);*/
    
    return_stack=(int) scheduler(regs);
+
    ptr=(registers_t *)return_stack;
-   printf("Returning ESP:    0x%X EIP: 0x%X\n",return_stack,ptr->eip);
+//   printf("timer_callback: Returning ESP:    0x%X EIP: 0x%X\n",return_stack,ptr->eip);
   // printf("Tock: %i\n",tick);
    
    new_esp=(int) return_stack;

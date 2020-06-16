@@ -41,7 +41,8 @@ extern "C"  int irq_handler(registers_t regs) // 64bytes
         printf("ESP                     0x%x\n",regs.esp);
         outb(0xA0, 0x20);
         
-    }printf("Returned ESP: 0x%X\n",(registers_t *) new_esp);
+    }
+    //printf("Returned_ESP: 0x%X\n",(registers_t *) new_esp);
     // Send reset signal to master. (As well as slave, if necessary).
     outb(0x20, 0x20);
 
@@ -54,12 +55,12 @@ extern "C"  int irq_handler(registers_t regs) // 64bytes
         
         //printf("IRQ: %i \n",regs.int_no);
         handler(regs);
-        printf("Returned ESP: 0x%X\n",new_esp);
+       /* printf("Returned ESP: 0x%X\n",new_esp);
         printf("Returned EIP: 0x%X\n",new_esp->eip);
         printf("Returned EBX: 0x%X\n",new_esp->ebx);
-        
+        */
         if (regs.int_no ==32)
-            return (int)(new_esp);
+            return (int)(new_esp)-0x24;
         else {
             return (int )(regs.esp-0x24);
         }
